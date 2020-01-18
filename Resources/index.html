@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>AAS| Tc Results</title>
+    <style>
+        * {
+            background-color: #f3f1f1;
+        }
+
+        canvas {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            width: 800px;
+        }
+
+        #title {
+            text-align: center;
+        }
+
+        .info {
+            display: grid;
+            grid-template-columns: 80%;
+            justify-content: center;
+            justify-items: center;
+            width: 80%;
+            height: 100%;
+        }
+
+        .fails {
+            display: none;
+            grid-template-rows: 100%;
+            justify-content: center;
+            justify-items: center;
+            width: 80%;
+            height: 100%;
+        }
+
+        .info_fails {
+            display: grid;
+            grid-template-columns: 100%;
+            justify-content: center;
+            justify-items: left;
+            width: 80%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="title"></h1>
+    <div class="wrapper" id="wrapper">
+
+
+
+    </div>
+    <h2 id="title">Conclusions</h2>
+    <div class="info" id="conclusions">
+        <h2 id="title">Null</h2>
+    </div>
+    <h2 id="title">Fails</h2>
+    <div class="info" id="fails">
+        <h2 id="title">Null</h2>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script>
+        test_name = null
+        test_time = null
+        graphs = null
+        conclusions = null
+        fails = null
+
+        file = {
+            "test_name": "Android Geofencing Tc",
+            "test_time": "1",
+            "conclusions": "Home Mode: Max=7, Min=5, Average=6.5 (in seconds). Away Mode: Max=9, Min=5, Average=7.75 (in seconds). Battery Level: Start=100, Now=100, Change=0 (in percents).",
+            "graphs": [
+                {
+                    "id_graph": "home_notification",
+                    "title": "Home Mode Notifications",
+                    "label": "Notifications time (in seconds)",
+                    "begin_at_zero": "True",
+                    "border_color": "#6bc52b",
+                    "x_data": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    "x_title": "Iterations",
+                    "y_data": [5, 7, 7, 7, -100, 7, 5, 7, 7],
+                    "y_title": "Seconds"
+                },
+                {
+                    "id_graph": "away_notification",
+                    "title": "Away Mode Notifications",
+                    "label": "Notifications time (in seconds)",
+                    "begin_at_zero": "True",
+                    "border_color": "#e8e234",
+                    "x_data": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    "x_title": "Iterations",
+                    "y_data": [9, 7, 7, 7, 7, 7, 6, 5, 7],
+                    "y_title": "Seconds"
+                },
+                {
+                    "id_graph": "battery_consumption",
+                    "title": "Battery consumption",
+                    "label": "Device: ce0117115be70d2305",
+                    "begin_at_zero": "False",
+                    "border_color": "#b18a8a",
+                    "x_data": [50, 99, 148, 197, 294, 344, 391, 438, 488],
+                    "x_title": "Time (in seconds)",
+                    "y_data": [100, 100, 100, 100, 100, 100, 100, 100, 100],
+                    "y_title": "Battery Level (in percent)"
+                }],
+            "fails": [
+                {
+                    "action": "Iteration №4 - is now Home mode? - False",
+                    "img_path": "/root/MyProjects/ArloAutomationServer/1576593669.png"
+                }]
+        }
+
+        function update_data() {
+            test_name = file.test_name
+            test_time = file.test_time
+            graphs = file.graphs
+            conclusions = file.conclusions
+            fails = file.fails
+            document.title = test_name
+        }
+
+        function create_notifications(id, title, labels, label, data, color = "#00FF00", mfill = true, yTitle = 'Seconds', xTitle = 'Iteration', beginAtZero = true) {
+            new Chart(document.getElementById(id), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        label: label,
+                        borderColor: '#DF0101',
+                        backgroundColor: color,
+                        fill: mfill
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: title
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: beginAtZero
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: yTitle
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                beginAtZero: beginAtZero
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: xTitle
+                            }
+                        }]
+                    }
+                }
+            })
+        }
+
+        function create_graphs() {
+            document.getElementById('title').innerHTML = test_name + ", time: " + test_time + " (in hours)"
+            str = ""
+            for (i = 0; i < graphs.length; i++) {
+                str += "<div class=\"info\"><canvas id=\"" + graphs[i].id_graph + "\"></canvas></div>\n"
+            }
+            document.getElementById('wrapper').innerHTML = str
+        }
+
+        function update_conclusions() {
+            document.getElementById("conclusions").innerHTML = conclusions
+        }
+
+        function open_screenshot(id) {
+            if (id.style.display == "grid") {
+                id.style.display = "none"
+            } else {
+                id.style.display = "grid"
+            }
+        }
+
+        function update_fails() {
+            console.log(fails)
+            console.log(fails.length)
+            str = ""
+            for (i = 0; i < fails.length; i++) {
+                str += "<div class=\"info_fails\"> <b onclick=\"open_screenshot(img_" + i + ")\" >" + i + ") " + fails[i].action + "</b>" + "<img id=\"img_" + i + "\" class=\"fails\" src=\"" + fails[i].img_path + "\" /></div>"
+            }
+            console.log("str: "+str)
+            document.getElementById("fails").innerHTML = str
+        }
+
+        function update_graphs() {
+            // null 
+            for (i = 0; i < graphs.length; i++) {
+                for (j = 0; j < graphs[i].y_data.length; j++) {
+                    if (graphs[i].y_data[j] <= 0) {
+                        graphs[i].y_data[j] = null
+                    }
+                }
+            }
+
+            for (i = 0; i < graphs.length; i++) {
+                create_notifications(
+                    graphs[i].id_graph,
+                    graphs[i].title,
+                    graphs[i].x_data,
+                    graphs[i].label,
+                    graphs[i].y_data,
+                    graphs[i].border_color,
+                    mfill = true,
+                    graphs[i].y_title,
+                    graphs[i].x_title,
+                    graphs[i].begin_at_zero
+                )
+            }
+        }
+
+        function update() {
+            update_graphs()
+            update_conclusions()
+            update_fails()
+        }
+
+        update_data()
+        create_graphs()
+        update()
+
+    </script>
+</body>
+
+</html>
